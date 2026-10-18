@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Albin Baftijari</title>
+  <meta name="description" content="Personal site of Albin Baftijari - IT, systems and small projects. Work in progress.">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #3fb950;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      padding: 24px;
+    }
+    main { max-width: 560px; width: 100%; }
+    .prompt { color: var(--accent); font-size: 0.95rem; margin-bottom: 16px; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; margin-bottom: 8px; }
+    .role { color: var(--muted); font-size: 1rem; margin-bottom: 32px; }
+    .status { font-size: 1rem; line-height: 1.6; }
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 1.1em;
+      background: var(--accent);
+      vertical-align: text-bottom;
+      animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    a {
+      display: inline-block;
+      margin-top: 32px;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+    a:hover { border-bottom-color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="prompt">albin@portfolio:~$ ./status.sh</p>
+    <h1>Albin Baftijari</h1>
+    <p class="role">IT &middot; Systems &middot; Small projects</p>
+    <p class="status">Site under construction. Projects coming soon <span class="cursor"></span></p>
+    <a href="https://www.linkedin.com/in/bafalba/" target="_blank" rel="noopener">&rarr; Find me on LinkedIn</a>
+  </main>
+</body>
+</html>
