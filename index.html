@@ -8,18 +8,16 @@
 
   <!--
     Decide BEFORE the page draws whether to play the boot screen.
-    Skipped when: the visitor already saw it this browser session,
-    or their OS asks for reduced motion.
+    Plays on every visit; skipped only when the visitor's OS
+    asks for reduced motion.
   -->
   <script>
     (function () {
       var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      var seen = false;
-      try { seen = sessionStorage.getItem('booted') === '1'; } catch (e) {}
-      if (!reduce && !seen) {
+      if (!reduce) {
         document.documentElement.classList.add('booting');
         // Safety net: never leave a visitor stuck on the boot screen
-        setTimeout(function () { document.documentElement.classList.remove('booting'); }, 8000);
+        setTimeout(function () { document.documentElement.classList.remove('booting'); }, 12000);
       }
     })();
   </script>
@@ -152,7 +150,6 @@
     (function () {
       var root = document.documentElement;
       if (!root.classList.contains('booting')) return;
-      try { sessionStorage.setItem('booted', '1'); } catch (e) {}
 
       var boot = document.getElementById('boot');
       var wip = document.getElementById('wip');
@@ -176,9 +173,9 @@
       ];
       var NAME = 'Albin Baftijari';
       var GLYPHS = '!@#$%*/{}[]=+?01';
-      var LINE_MS = 230;
+      var LINE_MS = 450;
       var DECRYPT_START = LINES.length * LINE_MS;
-      var DECRYPT_MS = 1100;
+      var DECRYPT_MS = 2000;
       var TOTAL = DECRYPT_START + DECRYPT_MS;
 
       var timers = [];
@@ -254,7 +251,7 @@
           tag.className = 'ok';
           tag.textContent = '[  OK  ]';
         }
-        timers.push(setTimeout(reveal, 450));
+        timers.push(setTimeout(reveal, 600));
       }
 
       function reveal() {
