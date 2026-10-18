@@ -5,55 +5,284 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Albin Baftijari</title>
   <meta name="description" content="Personal site of Albin Baftijari - IT, systems and small projects. Work in progress.">
+
+  <!--
+    Decide BEFORE the page draws whether to play the boot screen.
+    Skipped when: the visitor already saw it this browser session,
+    or their OS asks for reduced motion.
+  -->
+  <script>
+    (function () {
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var seen = false;
+      try { seen = sessionStorage.getItem('booted') === '1'; } catch (e) {}
+      if (!reduce && !seen) {
+        document.documentElement.classList.add('booting');
+        // Safety net: never leave a visitor stuck on the boot screen
+        setTimeout(function () { document.documentElement.classList.remove('booting'); }, 8000);
+      }
+    })();
+  </script>
+
   <style>
     :root {
       --bg: #0d1117;
+      --boot-bg: #05070a;
       --text: #e6edf3;
+      --soft: #c9d1d9;
       --muted: #8b949e;
+      --line: #30363d;
       --accent: #3fb950;
+      --ok: #7ee787;
+      --wait: #f0b74a;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, Menlo, monospace;
+    }
+
+    /* ---------- Work in progress page ---------- */
+    #wip {
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--bg);
-      color: var(--text);
-      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
       padding: 24px;
+      transition: opacity .5s ease;
     }
-    main { max-width: 560px; width: 100%; }
+    .booting #wip { opacity: 0; }
+    .wip-inner { max-width: 560px; width: 100%; }
     .prompt { color: var(--accent); font-size: 0.95rem; margin-bottom: 16px; }
-    h1 { font-size: clamp(2rem, 6vw, 3rem); font-weight: 700; margin-bottom: 8px; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; margin-bottom: 8px; }
     .role { color: var(--muted); font-size: 1rem; margin-bottom: 32px; }
     .status { font-size: 1rem; line-height: 1.6; }
     .cursor {
-      display: inline-block;
-      width: 10px;
-      height: 1.1em;
-      background: var(--accent);
-      vertical-align: text-bottom;
+      display: inline-block; width: 10px; height: 1.1em;
+      background: var(--accent); vertical-align: text-bottom;
       animation: blink 1s steps(1) infinite;
     }
     @keyframes blink { 50% { opacity: 0; } }
-    a {
-      display: inline-block;
-      margin-top: 32px;
-      color: var(--accent);
-      text-decoration: none;
+    .wip-inner a {
+      display: inline-block; margin-top: 32px;
+      color: var(--accent); text-decoration: none;
       border-bottom: 1px solid transparent;
     }
-    a:hover { border-bottom-color: var(--accent); }
+    .wip-inner a:hover { border-bottom-color: var(--accent); }
+
+    /* ---------- Boot screen ---------- */
+    #boot {
+      display: none;
+      position: fixed; inset: 0; z-index: 10;
+      background: var(--boot-bg); color: var(--soft);
+      flex-direction: column; gap: 28px;
+      padding: clamp(20px, 5vw, 48px) clamp(20px, 5vw, 64px);
+      overflow: auto;
+      transition: opacity .45s ease;
+    }
+    .booting #boot { display: flex; }
+    #boot.done { opacity: 0; pointer-events: none; }
+    .bios { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
+    .bios b { color: var(--text); }
+    #log { display: flex; flex-direction: column; gap: 8px; font-size: 15px; line-height: 1.5; min-height: 13.5em; }
+    #log div { opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s; }
+    #log div.show { opacity: 1; transform: none; }
+    .ok { color: var(--ok); }
+    .wait { color: var(--wait); }
+    .center {
+      flex-grow: 1; min-height: 180px;
+      display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 28px;
+    }
+    #name {
+      font-size: clamp(28px, 8vw, 64px); font-weight: 800; letter-spacing: 2px;
+      color: var(--text); text-align: center; white-space: nowrap;
+    }
+    #name .g { color: var(--ok); }
+    .bar-wrap { width: min(520px, 100%); display: flex; flex-direction: column; gap: 10px; }
+    .bar { height: 14px; border: 1px solid var(--line); border-radius: 3px; padding: 2px; }
+    #fill { width: 0; height: 100%; background: var(--ok); border-radius: 1px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 13px; color: var(--muted); }
+    #skip {
+      align-self: center; min-height: 44px; padding: 0 18px;
+      font: inherit; font-size: 14px; color: var(--muted);
+      background: none; border: 1px solid #21262d; border-radius: 6px; cursor: pointer;
+    }
+    #skip:hover { color: var(--text); border-color: var(--line); }
+    @media (max-width: 600px) {
+      .bios { font-size: 12px; }
+      #log { font-size: 12.5px; }
+    }
   </style>
 </head>
 <body>
-  <main>
-    <p class="prompt">albin@portfolio:~$ ./status.sh</p>
-    <h1>Albin Baftijari</h1>
-    <p class="role">IT &middot; Systems &middot; Small projects</p>
-    <p class="status">Site under construction. Projects coming soon <span class="cursor"></span></p>
-    <a href="https://www.linkedin.com/in/bafalba/" target="_blank" rel="noopener">&rarr; Find me on LinkedIn</a>
+
+  <!-- Boot screen (only shown when the <html> element has the "booting" class) -->
+  <div id="boot" role="status" aria-label="Loading site">
+    <div class="bios">
+      <b>ALBIN-BIOS v2.0 · first boot: 2005</b>
+      <span>CPU ........ curiosity @ 100%</span>
+      <span>Memory ..... OK</span>
+      <span>Boot device&nbsp; /home/albin</span>
+    </div>
+    <div id="log"></div>
+    <div class="center">
+      <div id="name">Albin Baftijari</div>
+      <div class="bar-wrap">
+        <div class="bar"><div id="fill"></div></div>
+        <div class="bar-label"><span id="stage">booting</span><span id="pct">0%</span></div>
+      </div>
+    </div>
+    <button id="skip" type="button">press any key to skip ›</button>
+  </div>
+
+  <!-- Work in progress page (what everyone sees after the boot) -->
+  <main id="wip">
+    <div class="wip-inner">
+      <p class="prompt">albin@portfolio:~$ ./status.sh</p>
+      <h1>Albin Baftijari</h1>
+      <p class="role">IT &middot; Systems &middot; Small projects</p>
+      <p class="status">Site under construction. Projects coming soon <span class="cursor"></span></p>
+      <a href="https://www.linkedin.com/in/bafalba/" target="_blank" rel="noopener">&rarr; Find me on LinkedIn</a>
+    </div>
   </main>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      if (!root.classList.contains('booting')) return;
+      try { sessionStorage.setItem('booted', '1'); } catch (e) {}
+
+      var boot = document.getElementById('boot');
+      var wip = document.getElementById('wip');
+      var log = document.getElementById('log');
+      var nameEl = document.getElementById('name');
+      var fill = document.getElementById('fill');
+      var pct = document.getElementById('pct');
+      var stage = document.getElementById('stage');
+      var skipBtn = document.getElementById('skip');
+
+      if (window.matchMedia && window.matchMedia('(hover: none)').matches) {
+        skipBtn.textContent = 'tap to skip ›';
+      }
+
+      var LINES = [
+        'Detected hardware: Siemens PC, Windows XP',
+        'Mounting /home/albin',
+        'Loading languages: sq it en de',
+        'Starting projects.service',
+        'Reached target: career-change.target'
+      ];
+      var NAME = 'Albin Baftijari';
+      var GLYPHS = '!@#$%*/{}[]=+?01';
+      var LINE_MS = 230;
+      var DECRYPT_START = LINES.length * LINE_MS;
+      var DECRYPT_MS = 1100;
+      var TOTAL = DECRYPT_START + DECRYPT_MS;
+
+      var timers = [];
+      var raf = 0;
+      var finished = false;
+      var start = performance.now();
+      var lastSwap = 0;
+      var scrambled = NAME.split('');
+      var decryptLine = null;
+
+      function addLine(ok, text) {
+        var d = document.createElement('div');
+        var tag = document.createElement('span');
+        tag.className = ok ? 'ok' : 'wait';
+        tag.textContent = ok ? '[  OK  ]' : '[ .... ]';
+        d.appendChild(tag);
+        d.appendChild(document.createTextNode(' ' + text));
+        log.appendChild(d);
+        requestAnimationFrame(function () { d.classList.add('show'); });
+        return d;
+      }
+
+      LINES.forEach(function (text, i) {
+        timers.push(setTimeout(function () { addLine(true, text); }, i * LINE_MS));
+      });
+      timers.push(setTimeout(function () {
+        decryptLine = addLine(false, 'Decrypting identity');
+        stage.textContent = 'decrypting identity';
+      }, DECRYPT_START));
+
+      function render(revealed, now) {
+        // Re-roll the random glyphs ~18 times per second, not every frame
+        if (now - lastSwap > 55) {
+          for (var i = 0; i < NAME.length; i++) {
+            scrambled[i] = GLYPHS.charAt(Math.floor(Math.random() * GLYPHS.length));
+          }
+          lastSwap = now;
+        }
+        nameEl.textContent = '';
+        for (var j = 0; j < NAME.length; j++) {
+          var c = NAME.charAt(j);
+          if (c === ' ' || j < revealed) {
+            nameEl.appendChild(document.createTextNode(c));
+          } else {
+            var s = document.createElement('span');
+            s.className = 'g';
+            s.textContent = scrambled[j];
+            nameEl.appendChild(s);
+          }
+        }
+      }
+
+      function tick(now) {
+        if (finished) return;
+        var t = now - start;
+        var p = Math.min(t / TOTAL, 1);
+        fill.style.width = (p * 100).toFixed(1) + '%';
+        pct.textContent = Math.round(p * 100) + '%';
+        var revealed = t < DECRYPT_START ? 0 : Math.floor(((t - DECRYPT_START) / DECRYPT_MS) * NAME.length);
+        render(revealed, now);
+        if (p < 1) { raf = requestAnimationFrame(tick); } else { complete(); }
+      }
+
+      function complete() {
+        if (finished) return;
+        finished = true;
+        nameEl.textContent = NAME;
+        fill.style.width = '100%';
+        pct.textContent = '100%';
+        stage.textContent = 'portfolio.service started';
+        if (decryptLine) {
+          var tag = decryptLine.firstChild;
+          tag.className = 'ok';
+          tag.textContent = '[  OK  ]';
+        }
+        timers.push(setTimeout(reveal, 450));
+      }
+
+      function reveal() {
+        cleanup();
+        boot.classList.add('done');
+        wip.style.opacity = '1';
+        setTimeout(function () {
+          root.classList.remove('booting');
+          wip.style.opacity = '';
+        }, 500);
+      }
+
+      function skip() {
+        finished = true;
+        timers.forEach(clearTimeout);
+        cancelAnimationFrame(raf);
+        reveal();
+      }
+
+      function cleanup() {
+        window.removeEventListener('keydown', skip);
+        window.removeEventListener('pointerdown', skip);
+      }
+
+      window.addEventListener('keydown', skip);
+      window.addEventListener('pointerdown', skip);
+      raf = requestAnimationFrame(tick);
+    })();
+  </script>
 </body>
 </html>
